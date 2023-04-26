@@ -1,0 +1,32 @@
+server:
+  port: 8080
+  shutdown: graceful
+
+spring:
+  application:
+    name: cafe-manager
+
+  profiles:
+    group:
+      test: domain
+      local: domain, storage
+    active: local
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:example-keys/example.pub
+          private-key-location: classpath:example-keys/example.key
+          jws-algorithms: RS256
+          access-token-expire-seconds: 1800 # 30 minutes
+          refresh-token-expire-seconds: 864000 # 10 days
+
+springdoc:
+  pathsToMatch: /**
+  packagesToScan: com.example.cafe
+  swagger-ui:
+    disable-swagger-default-url: true
+    display-request-duration: true
+    operationsSorter: method
+    use-root-path: true
