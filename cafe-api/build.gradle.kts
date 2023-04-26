@@ -4,7 +4,7 @@ plugins {
 dependencies {
     // module dependency
     implementation(project(":cafe-domain"))
-    implementation(project(":cafe-storage"))
+    runtimeOnly(project(":cafe-storage"))
     // web
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")

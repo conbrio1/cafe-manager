@@ -29,8 +29,11 @@ class ProductRepositoryCustomImpl(
         categoryId: Long?,
         lastFindId: Long?
     ): Slice<ProductDto> {
+        // join으로 인해 limit 적용이 제대로 안되므로, id를 기준으로 조회하기 위해 id의 범위를 우선 조회
+        val idMinMax = getIdMinMaxToFind(pageSize, nameQuery, categoryId, sortDirection, lastFindId)
         // product 조회를 위한 query 생성
-        val productSearchQuery = createQuery(sortDirection, lastFindId, nameQuery, categoryId, pageSize)
+        val productSearchQuery =
+            createQuery(idMinMax.first, idMinMax.second, sortDirection, nameQuery, categoryId)
         // product 조회 query 실행
         val productDtoList = productSearchQuery.fetchProduct()
 
@@ -44,19 +47,16 @@ class ProductRepositoryCustomImpl(
         return SliceImpl(productDtoList, Pageable.unpaged(), hasNext)
     }
 
-    private fun createQuery(
-        sortDirection: Sort.Direction?,
-        lastFindId: Long?,
+    private fun getIdMinMaxToFind(
+        pageSize: Int,
         nameQuery: String?,
         categoryId: Long?,
-        pageSize: Int
-    ): JPAQuery<Product> {
-        return jpaQueryFactory
-            .selectFrom(product)
+        sortDirection: Sort.Direction?,
+        lastFindId: Long?
+    ): Pair<Long, Long> {
+        val idRange = jpaQueryFactory.select(product.id)
+            .from(product)
             .innerJoin(category).on(category.id.eq(product.category.id))
-            .innerJoin(productOption).on(product.id.eq(productOption.product.id))
-            .innerJoin(option).on(option.id.eq(productOption.option.id))
-            .innerJoin(optionGroup).on(optionGroup.id.eq(option.optionGroup.id))
             .where(
                 if (sortDirection == Sort.Direction.ASC) {
                     productIdGt(lastFindId)
@@ -74,6 +74,47 @@ class ProductRepositoryCustomImpl(
                 }
             )
             .limit(pageSize.toLong() + 1)
+            .fetch()
+
+        return if (sortDirection == Sort.Direction.ASC) {
+            val min = idRange.first()
+            val max = idRange.last()
+
+            Pair(min, max)
+        } else {
+            val min = idRange.last()
+            val max = idRange.first()
+
+            Pair(min, max)
+        }
+    }
+
+    private fun createQuery(
+        idMin: Long,
+        idMax: Long,
+        sortDirection: Sort.Direction?,
+        nameQuery: String?,
+        categoryId: Long?
+    ): JPAQuery<Product> {
+        return jpaQueryFactory
+            .selectFrom(product)
+            .innerJoin(category).on(category.id.eq(product.category.id))
+            .innerJoin(productOption).on(product.id.eq(productOption.product.id))
+            .innerJoin(option).on(option.id.eq(productOption.option.id))
+            .innerJoin(optionGroup).on(optionGroup.id.eq(option.optionGroup.id))
+            .where(
+                productIdGoe(idMin),
+                productIdLoe(idMax),
+                productNameLike(nameQuery),
+                categoryIdEq(categoryId)
+            )
+            .orderBy(
+                if (sortDirection == Sort.Direction.ASC) {
+                    product.id.asc()
+                } else {
+                    product.id.desc()
+                }
+            )
     }
 
     private fun JPAQuery<Product>.fetchProduct(): MutableList<ProductDto> {
@@ -99,6 +140,12 @@ class ProductRepositoryCustomImpl(
             )
         )
     }
+
+    private fun productIdGoe(minId: Long?) =
+        if (minId != null) product.id.goe(minId) else null
+
+    private fun productIdLoe(maxId: Long?) =
+        if (maxId != null) product.id.loe(maxId) else null
 
     private fun productIdGt(lastFindId: Long?) =
         if (lastFindId != null) product.id.gt(lastFindId) else null
