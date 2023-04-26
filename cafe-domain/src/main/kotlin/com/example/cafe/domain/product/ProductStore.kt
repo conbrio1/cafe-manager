@@ -1,3 +1,7 @@
 package com.example.cafe.domain.product
 
-interface ProductStore
+interface ProductStore {
+    fun store(product: Product): Product
+
+    fun remove(product: Product)
+}

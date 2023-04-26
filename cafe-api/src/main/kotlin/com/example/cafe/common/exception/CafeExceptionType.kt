@@ -29,5 +29,13 @@ enum class CafeExceptionType(
     CATEGORY_NOT_FOUND(
         status = HttpStatus.NOT_FOUND,
         message = "존재하지 않는 카테고리입니다."
+    ),
+    PRODUCT_NOT_FOUND(
+        status = HttpStatus.NOT_FOUND,
+        message = "존재하지 않는 상품입니다."
+    ),
+    PRODUCT_NAME_DUPLICATION(
+        status = HttpStatus.BAD_REQUEST,
+        message = "이미 존재하는 상품명입니다."
     )
 }

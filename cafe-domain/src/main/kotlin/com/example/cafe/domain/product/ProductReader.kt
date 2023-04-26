@@ -13,5 +13,7 @@ interface ProductReader {
         lastFindId: Long?
     ): Slice<ProductDto>
 
-//    fun getProductDetail(id: Long): Product?
+    fun getProductByName(name: String): Product?
+
+    fun getProductById(id: Long): Product?
 }

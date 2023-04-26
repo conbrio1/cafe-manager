@@ -1,13 +1,11 @@
 package com.example.cafe.domain.product
 
 import com.example.cafe.domain.common.BaseEntity
-import javax.persistence.CascadeType
 import javax.persistence.Column
 import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
-import javax.persistence.OneToMany
 
 /**
  * 옵션 그룹
@@ -22,11 +20,6 @@ class OptionGroup private constructor(
     @Column(nullable = false, length = 50)
     var name: String
 ) : BaseEntity() {
-
-    @OneToMany(mappedBy = "optionGroup", cascade = [CascadeType.ALL], orphanRemoval = true)
-    private val _options: MutableList<Option> = mutableListOf()
-    val options: List<Option>
-        get() = _options.toList()
 
     constructor(name: String) : this(
         id = 0,

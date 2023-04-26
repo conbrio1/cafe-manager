@@ -8,7 +8,7 @@ import org.springframework.util.MultiValueMap
 
 class BaseResponse<T>(
     val status: HttpStatus,
-    val body: BaseResponseBody<T>,
+    val body: BaseResponseBody<T>?,
     val headers: MultiValueMap<String, String>? = null
 ) : ResponseEntity<BaseResponseBody<T>>(body, headers, status) {
     companion object {
@@ -57,6 +57,14 @@ class BaseResponse<T>(
                     data = null
                 ),
                 headers = defaultHeader.clone()
+            )
+        }
+
+        fun noContent(): BaseResponse<Unit> {
+            return BaseResponse(
+                status = HttpStatus.NO_CONTENT,
+                body = null,
+                headers = null
             )
         }
     }

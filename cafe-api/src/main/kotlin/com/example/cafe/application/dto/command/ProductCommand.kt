@@ -12,7 +12,8 @@ object ProductCommand {
         val description: String,
         val barcode: String,
         val expirationDate: LocalDate,
-        val categoryName: String
+        val categoryName: String,
+        val productOptions: List<ProductOptionCreateCommand>
     ) {
         fun toEntity(category: Category): Product {
             return Product(
@@ -26,4 +27,22 @@ object ProductCommand {
             )
         }
     }
+
+    data class ProductUpdateCommand(
+        val id: Long,
+        val name: String?,
+        val price: Int?,
+        val cost: Int?,
+        val description: String?,
+        val barcode: String?,
+        val expirationDate: LocalDate?,
+        val categoryName: String?,
+        val productOptions: List<ProductOptionCreateCommand>?
+    )
+
+    data class ProductOptionCreateCommand(
+        val groupName: String,
+        val optionName: String,
+        val optionPrice: Int
+    )
 }

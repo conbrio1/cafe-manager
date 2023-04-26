@@ -1,15 +1,22 @@
 package com.example.cafe.presentation
 
 import com.example.cafe.application.ProductService
+import com.example.cafe.presentation.dto.request.ProductRequest
 import com.example.cafe.presentation.dto.response.BaseResponse
 import com.example.cafe.presentation.dto.response.CursorPaginationResponse
 import com.example.cafe.presentation.dto.response.ProductResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Sort
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import javax.validation.Valid
 
 @Tag(name = "상품", description = "상품 관련 API")
 @RestController
@@ -32,28 +39,46 @@ class ProductController(
         return BaseResponse.ok(CursorPaginationResponse.of(productResponseSlice))
     }
 
-//    @PostMapping("/")
-//    fun createProduct(
-//        @Valid @RequestBody request: ProductRequest.ProductCreateRequest
-//    ) {
-//
-//        val productCreateCommand = request.toCommand()
-//        val productInfo = productService.createProduct(productCreateCommand)
-//
-//    }
-//
-//    @PatchMapping("/{productId}")
-//    fun updateProduct() {
-//
-//    }
-//
-//    @DeleteMapping("/{productId}")
-//    fun deleteProduct() {
-//
-//    }
-//
-//    @GetMapping("/{productId}")
-//    fun getProductDetail() {
-//
-//    }
+    @PostMapping
+    fun createProduct(
+        @Valid @RequestBody
+        request: ProductRequest.ProductCreateRequest
+    ): BaseResponse<ProductResponse.ProductResponse> {
+        val productCreateCommand = request.toCommand()
+        val productInfo = productService.createProduct(productCreateCommand)
+        val productResponse = ProductResponse.ProductResponse.of(productInfo)
+
+        return BaseResponse.created(productResponse, "/products/${productResponse.id}")
+    }
+
+    @PatchMapping("/{productId}")
+    fun updateProduct(
+        @PathVariable("productId", required = true) productId: Long,
+        @Valid @RequestBody
+        request: ProductRequest.ProductUpdateRequest
+    ): BaseResponse<Unit> {
+        val productUpdateCommand = request.toCommand(productId)
+        productService.updateProduct(productUpdateCommand)
+
+        return BaseResponse.noContent()
+    }
+
+    @DeleteMapping("/{productId}")
+    fun deleteProduct(
+        @PathVariable("productId", required = true) productId: Long
+    ): BaseResponse<Unit> {
+        productService.deleteProduct(productId)
+
+        return BaseResponse.noContent()
+    }
+
+    @GetMapping("/{productId}")
+    fun getProductDetail(
+        @PathVariable("productId", required = true) productId: Long
+    ): BaseResponse<ProductResponse.ProductResponse> {
+        val productInfo = productService.getProductDetail(productId)
+        val productResponse = ProductResponse.ProductResponse.of(productInfo)
+
+        return BaseResponse.ok(productResponse)
+    }
 }

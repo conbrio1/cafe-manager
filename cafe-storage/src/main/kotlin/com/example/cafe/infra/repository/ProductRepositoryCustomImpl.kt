@@ -1,5 +1,6 @@
 package com.example.cafe.infra.repository
 
+import com.example.cafe.domain.product.Product
 import com.example.cafe.domain.product.QCategory.category
 import com.example.cafe.domain.product.QOption.option
 import com.example.cafe.domain.product.QOptionGroup.optionGroup
@@ -11,6 +12,7 @@ import com.example.cafe.domain.product.dto.QProductOptionDto
 import com.querydsl.core.group.GroupBy
 import com.querydsl.core.group.GroupBy.list
 import com.querydsl.core.types.dsl.BooleanExpression
+import com.querydsl.jpa.impl.JPAQuery
 import com.querydsl.jpa.impl.JPAQueryFactory
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
@@ -27,7 +29,29 @@ class ProductRepositoryCustomImpl(
         categoryId: Long?,
         lastFindId: Long?
     ): Slice<ProductDto> {
-        val productDtoList = jpaQueryFactory
+        // product 조회를 위한 query 생성
+        val productSearchQuery = createQuery(sortDirection, lastFindId, nameQuery, categoryId, pageSize)
+        // product 조회 query 실행
+        val productDtoList = productSearchQuery.fetchProduct()
+
+        val hasNext = if (productDtoList.size > pageSize) {
+            productDtoList.removeLast()
+            true
+        } else {
+            false
+        }
+
+        return SliceImpl(productDtoList, Pageable.unpaged(), hasNext)
+    }
+
+    private fun createQuery(
+        sortDirection: Sort.Direction?,
+        lastFindId: Long?,
+        nameQuery: String?,
+        categoryId: Long?,
+        pageSize: Int
+    ): JPAQuery<Product> {
+        return jpaQueryFactory
             .selectFrom(product)
             .innerJoin(category).on(category.id.eq(product.category.id))
             .innerJoin(productOption).on(product.id.eq(productOption.product.id))
@@ -50,36 +74,30 @@ class ProductRepositoryCustomImpl(
                 }
             )
             .limit(pageSize.toLong() + 1)
-            .transform(
-                GroupBy.groupBy(product.id).list(
-                    QProductDto(
-                        product.id,
-                        product.name,
-                        product.price,
-                        product.cost,
-                        product.description,
-                        product.barcode,
-                        product.expirationDate,
-                        category,
-                        list(
-                            QProductOptionDto(
-                                option.name,
-                                optionGroup.name,
-                                productOption.optionPrice
-                            )
+    }
+
+    private fun JPAQuery<Product>.fetchProduct(): MutableList<ProductDto> {
+        return this.transform(
+            GroupBy.groupBy(product.id).list(
+                QProductDto(
+                    product.id,
+                    product.name,
+                    product.price,
+                    product.cost,
+                    product.description,
+                    product.barcode,
+                    product.expirationDate,
+                    category,
+                    list(
+                        QProductOptionDto(
+                            option.name,
+                            optionGroup.name,
+                            productOption.optionPrice
                         )
                     )
                 )
             )
-
-        val hasNext = if (productDtoList.size > pageSize) {
-            productDtoList.removeLast()
-            true
-        } else {
-            false
-        }
-
-        return SliceImpl(productDtoList, Pageable.unpaged(), hasNext)
+        )
     }
 
     private fun productIdGt(lastFindId: Long?) =
@@ -91,6 +109,7 @@ class ProductRepositoryCustomImpl(
     private fun categoryIdEq(categoryId: Long?) =
         if (categoryId != null) category.id.eq(categoryId) else null
 
+    // 자음 초성 및 이름 검색 조건
     private fun productNameLike(nameQuery: String?): BooleanExpression? {
         if (nameQuery.isNullOrBlank()) {
             return null

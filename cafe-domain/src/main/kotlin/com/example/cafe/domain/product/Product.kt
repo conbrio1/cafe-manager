@@ -71,9 +71,11 @@ class Product private constructor(
         this.nameCosonant = extractCosonant(name)
     }
 
-    fun addProductOption(option: Option, optionPrice: Int) {
+    fun addProductOption(option: Option, optionPrice: Int): ProductOption {
         val productOption = ProductOption(this, option, optionPrice)
         _productOptions.add(productOption)
+
+        return productOption
     }
 
     fun removeProductOption(productOption: ProductOption) {
@@ -85,14 +87,22 @@ class Product private constructor(
         this.nameCosonant = extractCosonant(name)
     }
 
+    fun removeAllProductOption() {
+        _productOptions.clear()
+    }
+
     companion object {
-        private fun extractCosonant(str: String): String {
-            val cosonant = mutableListOf<Char>()
+        private val COSONANTS = listOf(
+            "ㄱ", "ㄲ", "ㄴ", "ㄷ", "ㄸ", "ㄹ", "ㅁ", "ㅂ", "ㅃ", "ㅅ", "ㅆ", "ㅇ", "ㅈ", "ㅉ", "ㅊ", "ㅋ", "ㅌ", "ㅍ", "ㅎ"
+        )
+
+        fun extractCosonant(str: String): String {
+            val cosonant = mutableListOf<String>()
             for (i in str.indices) {
                 val ch = str[i]
                 if (ch in '가'..'힣') {
-                    val cosonantIndex = (ch - '가') / 28 / 21
-                    cosonant.add('ㄱ' + cosonantIndex)
+                    val cosonantIndex = (ch - 0xAC00).code / 28 / 21
+                    cosonant.add(COSONANTS[cosonantIndex])
                 }
             }
             return cosonant.joinToString("")

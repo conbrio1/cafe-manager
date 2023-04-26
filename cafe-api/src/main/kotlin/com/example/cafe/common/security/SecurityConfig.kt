@@ -43,12 +43,10 @@ class SecurityConfig(
                     .antMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/").permitAll()
                     .antMatchers("/users/sign-up").permitAll()
                     .antMatchers("/auth/login").permitAll()
-                    .antMatchers("/auth/refresh").hasRole(RoleType.ROLE_EMPLOYEE.roleName)
-                    .antMatchers(HttpMethod.POST, "/**").hasRole(RoleType.ROLE_MANAGER.roleName)
-                    .antMatchers(HttpMethod.GET, "/**").hasAnyRole(
-                        RoleType.ROLE_MANAGER.roleName,
-                        RoleType.ROLE_EMPLOYEE.roleName
-                    )
+                    .antMatchers("/auth/refresh").authenticated()
+                    .antMatchers(HttpMethod.GET, "/products/**", "/categories/**").authenticated()
+                    .antMatchers(HttpMethod.POST, "/products/**").hasRole(RoleType.ROLE_MANAGER.roleName)
+                    .antMatchers(HttpMethod.PATCH, "/products/**").hasRole(RoleType.ROLE_MANAGER.roleName)
             }
             .csrf().disable()
             .cors().disable()

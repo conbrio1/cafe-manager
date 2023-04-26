@@ -6,7 +6,6 @@ import javax.persistence.Entity
 import javax.persistence.GeneratedValue
 import javax.persistence.GenerationType
 import javax.persistence.Id
-import javax.persistence.OneToMany
 
 /**
  * 카테고리
@@ -22,10 +21,6 @@ class Category private constructor(
     @Column(nullable = false)
     var name: String
 ) : BaseEntity() {
-    @OneToMany(mappedBy = "category")
-    private val _products: MutableList<Product> = mutableListOf()
-    val products: List<Product>
-        get() = _products.toList()
 
     constructor(name: String) : this(
         id = 0L,
