@@ -4,7 +4,7 @@ plugins {
 
 dependencies {
     // module dependency
-    implementation(project(":cafe-domain"))
+    compileOnly(project(":cafe-domain"))
     // spring data jpa
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     // querydsl
