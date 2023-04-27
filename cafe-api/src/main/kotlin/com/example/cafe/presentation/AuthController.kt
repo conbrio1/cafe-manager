@@ -4,6 +4,8 @@ import com.example.cafe.application.AuthService
 import com.example.cafe.common.exception.CafeExceptionType
 import com.example.cafe.common.exception.CafeRuntimeException
 import com.example.cafe.common.security.TokenType
+import com.example.cafe.common.swagger.LoginSwaggerMeta
+import com.example.cafe.common.swagger.RefreshTokenSwaggerMeta
 import com.example.cafe.presentation.dto.request.UserRequest
 import com.example.cafe.presentation.dto.response.BaseResponse
 import com.example.cafe.presentation.dto.response.UserResponse
@@ -23,6 +25,7 @@ class AuthController(
     private val authService: AuthService
 ) {
 
+    @LoginSwaggerMeta
     @PostMapping("/login")
     fun login(
         @RequestBody @Valid
@@ -34,6 +37,7 @@ class AuthController(
         return BaseResponse.ok(tokenResponse)
     }
 
+    @RefreshTokenSwaggerMeta
     @PostMapping("/refresh")
     fun refresh(
         authentication: Authentication

@@ -47,6 +47,7 @@ class SecurityConfig(
                     .antMatchers(HttpMethod.GET, "/products/**", "/categories/**").authenticated()
                     .antMatchers(HttpMethod.POST, "/products/**").hasRole(RoleType.ROLE_MANAGER.roleName)
                     .antMatchers(HttpMethod.PATCH, "/products/**").hasRole(RoleType.ROLE_MANAGER.roleName)
+                    .antMatchers(HttpMethod.DELETE, "/products/**").hasRole(RoleType.ROLE_MANAGER.roleName)
             }
             .csrf().disable()
             .cors().disable()

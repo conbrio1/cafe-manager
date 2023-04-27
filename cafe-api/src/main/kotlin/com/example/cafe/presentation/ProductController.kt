@@ -1,6 +1,11 @@
 package com.example.cafe.presentation
 
 import com.example.cafe.application.ProductService
+import com.example.cafe.common.swagger.CreateProductSwaggerMeta
+import com.example.cafe.common.swagger.DeleteProductSwaggerMeta
+import com.example.cafe.common.swagger.GetProductSwaggerMeta
+import com.example.cafe.common.swagger.GetProductsSwaggerMeta
+import com.example.cafe.common.swagger.UpdateProductSwaggerMeta
 import com.example.cafe.presentation.dto.request.ProductRequest
 import com.example.cafe.presentation.dto.response.BaseResponse
 import com.example.cafe.presentation.dto.response.CursorPaginationResponse
@@ -25,6 +30,7 @@ class ProductController(
     private val productService: ProductService
 ) {
 
+    @GetProductsSwaggerMeta
     @GetMapping
     fun getProducts(
         @RequestParam("pageSize", defaultValue = "10") pageSize: Int,
@@ -39,6 +45,7 @@ class ProductController(
         return BaseResponse.ok(CursorPaginationResponse.of(productResponseSlice))
     }
 
+    @CreateProductSwaggerMeta
     @PostMapping
     fun createProduct(
         @Valid @RequestBody
@@ -51,6 +58,7 @@ class ProductController(
         return BaseResponse.created(productResponse, "/products/${productResponse.id}")
     }
 
+    @UpdateProductSwaggerMeta
     @PatchMapping("/{productId}")
     fun updateProduct(
         @PathVariable("productId", required = true) productId: Long,
@@ -63,6 +71,7 @@ class ProductController(
         return BaseResponse.noContent()
     }
 
+    @DeleteProductSwaggerMeta
     @DeleteMapping("/{productId}")
     fun deleteProduct(
         @PathVariable("productId", required = true) productId: Long
@@ -72,8 +81,9 @@ class ProductController(
         return BaseResponse.noContent()
     }
 
+    @GetProductSwaggerMeta
     @GetMapping("/{productId}")
-    fun getProductDetail(
+    fun getProduct(
         @PathVariable("productId", required = true) productId: Long
     ): BaseResponse<ProductResponse.ProductResponse> {
         val productInfo = productService.getProductDetail(productId)

@@ -7,4 +7,6 @@ import org.springframework.web.bind.annotation.RestController
 @Tag(name = "상품 옵션", description = "상품 옵션 관련 API")
 @RestController
 @RequestMapping("/options")
-class OptionController
+class OptionController {
+    // TODO: 상품 옵션 관련 API 구현
+}

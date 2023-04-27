@@ -1,6 +1,7 @@
 package com.example.cafe.presentation
 
 import com.example.cafe.application.dto.CategoryService
+import com.example.cafe.common.swagger.GetCategoriesSwaggerMeta
 import com.example.cafe.presentation.dto.response.BaseResponse
 import com.example.cafe.presentation.dto.response.CategoryResponse
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -15,6 +16,7 @@ class CategoryController(
     private val categoryService: CategoryService
 ) {
 
+    @GetCategoriesSwaggerMeta
     @GetMapping
     fun getCategories(): BaseResponse<List<CategoryResponse.CategoryResponse>> {
         val categoryInfos = categoryService.getCategories()

@@ -1,6 +1,7 @@
 package com.example.cafe.presentation
 
 import com.example.cafe.application.UserService
+import com.example.cafe.common.swagger.SignUpSwaggerMeta
 import com.example.cafe.presentation.dto.request.UserRequest
 import com.example.cafe.presentation.dto.response.BaseResponse
 import com.example.cafe.presentation.dto.response.UserResponse
@@ -18,6 +19,7 @@ class UserController(
     private val userService: UserService
 ) {
 
+    @SignUpSwaggerMeta
     @PostMapping("/sign-up")
     fun signUp(
         @RequestBody @Valid
